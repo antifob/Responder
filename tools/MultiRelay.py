@@ -16,10 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import sys
-if (sys.version_info > (3, 0)):
-    PY2OR3     = "PY3"
-else:
-    PY2OR3  = "PY2"
+if (sys.version_info < (3, 0)):
     sys.exit("For now MultiRelay only supports python 3. Try python3 MultiRelay.py ...")
 import re
 import os
@@ -29,10 +26,7 @@ import time
 import random
 import subprocess
 from threading import Thread
-if PY2OR3 == "PY3":
-    from socketserver import TCPServer, UDPServer, ThreadingMixIn, BaseRequestHandler
-else:
-    from SocketServer import TCPServer, UDPServer, ThreadingMixIn, BaseRequestHandler
+from socketserver import TCPServer, UDPServer, ThreadingMixIn, BaseRequestHandler
 
 try:
     from Crypto.Hash import MD5
@@ -159,24 +153,13 @@ Logs = logging
 Logs.basicConfig(filemode="w",filename=Logs_Path+'logs/SMBRelay-Session.txt',level=logging.INFO, format='%(asctime)s - %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 
 def NetworkSendBufferPython2or3(data):
-    if PY2OR3 == "PY2":
-        return str(data)
-    else:
-        return bytes(str(data), 'latin-1')
+    return bytes(str(data), 'latin-1')
 
 def NetworkRecvBufferPython2or3(data):
-	if PY2OR3 == "PY2":
-		return str(data)
-	else:
-		return str(data.decode('latin-1'))
+	return str(data.decode('latin-1'))
 
 def StructPython2or3(endian,data):
-	#Python2...
-	if PY2OR3 == "PY2":
-		return struct.pack(endian, len(data))
-	#Python3...
-	else:
-		return struct.pack(endian, len(data)).decode('latin-1')
+	return struct.pack(endian, len(data)).decode('latin-1')
 
 def UploadContent(File):
     with open(File,'rb') as f:
