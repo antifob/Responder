@@ -14,6 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 import os
 import sys
 import re
@@ -29,6 +30,7 @@ import netifaces
 import sqlite3
 
 from calendar import timegm
+
 
 def if_nametoindex2(name):
 	if settings.Config.PY2OR3 == "PY2":
@@ -62,17 +64,21 @@ def RandomChallenge():
 		else:
 			return settings.Config.Challenge
 
+
 def HTTPCurrentDate():
-	Date = datetime.datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S GMT')
-	return Date
+	return datetime.datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S GMT')
+
 
 def SMBTime():
     dt = datetime.datetime.now()
     dt = dt.replace(tzinfo=None)
+
+    t = struct.pack("<Q",116444736000000000 + (timegm(dt.timetuple()) * 10000000))
     if settings.Config.PY2OR3 == "PY3":
-       return struct.pack("<Q",116444736000000000 + (timegm(dt.timetuple()) * 10000000)).decode('latin-1')
-    else:
-       return struct.pack("<Q",116444736000000000 + (timegm(dt.timetuple()) * 10000000))
+        t = t.decode('latin-1')
+
+    return t
+
 
 def color(txt, code = 1, modifier = 0):
 	if txt.startswith('[*]'):
@@ -84,12 +90,14 @@ def color(txt, code = 1, modifier = 0):
 		return txt
 	return "\033[%d;3%dm%s\033[0m" % (modifier, code, txt)
 
+
 def text(txt):
 	stripcolors = re.sub(r'\x1b\[([0-9,A-Z]{1,2}(;[0-9]{1,2})?(;[0-9]{3})?)?[m|K]?', '', txt)
 	logging.info(stripcolors)
 	if os.name == 'nt':
 		return txt
 	return '\r' + re.sub(r'\[([^]]*)\]', "\033[1;34m[\\1]\033[0m", txt)
+
 
 def IsOnTheSameSubnet(ip, net):
 	net += '/24'
@@ -98,6 +106,7 @@ def IsOnTheSameSubnet(ip, net):
 	netaddr = int(''.join([ '%02x' % int(x) for x in netstr.split('.') ]), 16)
 	mask = (0xffffffff << (32 - int(bits))) & 0xffffffff
 	return (ipaddr & mask) == (netaddr & mask)
+
 
 def RespondToThisIP(ClientIp):
 
@@ -412,7 +421,7 @@ def SaveDHCPToDb(result):
 		cursor.commit()
 
 	cursor.close()
-	
+
 def Parse_IPV6_Addr(data):
 	if data[len(data)-4:len(data)] == b'\x00\x1c\x00\x01':
 		return 'IPv6'
@@ -422,12 +431,11 @@ def Parse_IPV6_Addr(data):
 		return True
 	return False
 
+
 def IsIPv6(data):
-	if "::ffff:" in data:
-		return False
-	else:
-		return True
+	return "::ffff:" in data:
     
+
 def Decode_Name(nbname):  #From http://code.google.com/p/dpkt/ with author's permission.
 	try:
 		from string import printable

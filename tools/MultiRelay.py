@@ -31,6 +31,7 @@ from socketserver import TCPServer, UDPServer, ThreadingMixIn, BaseRequestHandle
 try:
     from Crypto.Hash import MD5
 except ImportError:
+    # TODO This should point at pycryptodome or another supported lib.
     print("\033[1;31m\nCrypto lib is not installed. You won't be able to live dump the hashes.")
     print("You can install it on debian based os with this command: apt-get install python-crypto")
     print("The Sam file will be saved anyway and you will have the bootkey.\033[0m\n")
@@ -38,7 +39,6 @@ try:
     import readline
 except:
     print("Warning: readline module is not available, you will not be able to use the arrow keys for command history")
-    pass
 from MultiRelay.RelayMultiPackets import *
 from MultiRelay.RelayMultiCore import *
 from SMBFinger.Finger import RunFinger,ShowSigning,RunPivotScan

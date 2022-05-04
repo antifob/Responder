@@ -21,6 +21,7 @@ if settings.Config.PY2OR3 == "PY3":
 else:
 	from SocketServer import BaseRequestHandler
 
+
 def ParseDNSType(data):
 	QueryTypeClass = data[len(data)-4:]
 	OPT = data[len(data)-22:len(data)-20]
@@ -33,7 +34,6 @@ def ParseDNSType(data):
 		return "SRV"
 	elif QueryTypeClass == "\x00\x1c\x00\x01":
 		return "IPv6"
-
 
 
 class DNS(BaseRequestHandler):
@@ -78,10 +78,9 @@ class DNS(BaseRequestHandler):
 				soc.sendto(NetworkSendBufferPython2or3(buff), self.client_address)
 				ResolveName = re.sub('[^0-9a-zA-Z]+', '.', buff.fields["QuestionName"])
 				print(color("[*] [DNS] AAAA OPT Record poisoned answer sent to: %-15s  Requested name: %s" % (self.client_address[0], ResolveName), 2, 1))
-
-
 		except Exception:
 			pass
+
 
 # DNS Server TCP Class
 class DNSTCP(BaseRequestHandler):

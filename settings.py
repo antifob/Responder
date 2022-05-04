@@ -14,19 +14,19 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-import utils, sys, random
+
+import utils, sys, random, subprocess
 if (sys.version_info > (3, 0)):
 	import configparser as ConfigParser
 else:
 	import ConfigParser
-import subprocess
 
 from utils import *
 
 __version__ = 'Responder 3.1.1.0'
 
+
 class Settings:
-	
 	def __init__(self):
 		self.ResponderPATH = os.path.dirname(__file__)
 		self.Bind_To = '0.0.0.0'
@@ -67,7 +67,6 @@ class Settings:
 		self.DontRespondTo = expand_ranges(self.DontRespondTo)
 
 	def populate(self, options):
-
 		if options.Interface == None and utils.IsOsX() == False:
 			print(utils.color("Error: -I <if> mandatory option is missing", 1))
 			sys.exit(-1)
@@ -77,7 +76,7 @@ class Settings:
 			sys.exit(-1)
 		#Python version
 		if (sys.version_info > (3, 0)):
-			self.PY2OR3     = "PY3"
+			self.PY2OR3 = "PY3"
 		else:
 			self.PY2OR3	= "PY2"
 		# Config parsing
@@ -96,8 +95,8 @@ class Settings:
 		self.LDAP_On_Off     = self.toBool(config.get('Responder Core', 'LDAP'))
 		self.DNS_On_Off      = self.toBool(config.get('Responder Core', 'DNS'))
 		self.RDP_On_Off      = self.toBool(config.get('Responder Core', 'RDP'))
-		self.DCERPC_On_Off      = self.toBool(config.get('Responder Core', 'DCERPC'))
-		self.WinRM_On_Off      = self.toBool(config.get('Responder Core', 'WINRM'))
+		self.DCERPC_On_Off   = self.toBool(config.get('Responder Core', 'DCERPC'))
+		self.WinRM_On_Off    = self.toBool(config.get('Responder Core', 'WINRM'))
 		self.Krb_On_Off      = self.toBool(config.get('Responder Core', 'Kerberos'))
 
 		# Db File
@@ -135,20 +134,20 @@ class Settings:
 		self.ExternalIP6        = options.ExternalIP6
 
 		if self.Interface == "ALL":
-                	self.Bind_To_ALL  = True
+            self.Bind_To_ALL = True
 		else:
-			self.Bind_To_ALL  = False
+			self.Bind_To_ALL = False
 		#IPV4
 		if self.Interface == "ALL":
-			self.IP_aton   = socket.inet_aton(self.OURIP)
+			self.IP_aton = socket.inet_aton(self.OURIP)
 		else:
-			self.IP_aton   = socket.inet_aton(self.Bind_To)
+			self.IP_aton = socket.inet_aton(self.Bind_To)
 		#IPV6
 		if self.Interface == "ALL":
 			if self.OURIP != None and utils.IsIPv6IP(self.OURIP):
-				self.IP_Pton6   = socket.inet_pton(socket.AF_INET6, self.OURIP)
+				self.IP_Pton6 = socket.inet_pton(socket.AF_INET6, self.OURIP)
 		else:
-			self.IP_Pton6   = socket.inet_pton(socket.AF_INET6, self.Bind_To6)
+			self.IP_Pton6 = socket.inet_pton(socket.AF_INET6, self.Bind_To6)
 		
 		#External IP
 		if self.ExternalIP:
@@ -253,7 +252,7 @@ class Settings:
 				for i in range(0, len(self.NumChal),2):
 					self.Challenge += self.NumChal[i:i+2].decode("hex")
 			else:
-					self.Challenge = bytes.fromhex(self.NumChal)
+				self.Challenge = bytes.fromhex(self.NumChal)
 
 
 		# Set up logging
@@ -288,7 +287,6 @@ class Settings:
 				NetworkCard = subprocess.check_output(["ip", "address", "show"])
 			except subprocess.CalledProcessError as ex:
 				NetworkCard = "Error fetching Network Interfaces:", ex
-				pass
 		try:
 			DNS = subprocess.check_output(["cat", "/etc/resolv.conf"])
 		except subprocess.CalledProcessError as ex:
@@ -301,7 +299,6 @@ class Settings:
 				RoutingInfo = subprocess.check_output(["ip", "route", "show"])
 			except subprocess.CalledProcessError as ex:
 				RoutingInfo = "Error fetching Routing information:", ex
-				pass
 
 		Message = "%s\nCurrent environment is:\nNetwork Config:\n%s\nDNS Settings:\n%s\nRouting info:\n%s\n\n"%(utils.HTTPCurrentDate(), NetworkCard.decode('latin-1'),DNS.decode('latin-1'),RoutingInfo.decode('latin-1'))
 		try:
@@ -309,7 +306,7 @@ class Settings:
 			utils.DumpConfig(self.ResponderConfigDump,str(self))
 		except AttributeError as ex:
 			print("Missing Module:", ex)
-			pass
+
 
 def init():
 	global Config
