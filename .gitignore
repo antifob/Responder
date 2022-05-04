@@ -1,5 +1,4 @@
-# Responder logs
+__pycache__
 *.db
 *.txt
-*.log
-
+*.swp

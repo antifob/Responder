@@ -335,7 +335,7 @@ def SaveToDb(result):
 		res = cursor.execute("SELECT COUNT(*) AS count FROM responder WHERE module=? AND type=? AND client=? AND LOWER(user)=LOWER(?)", (result['module'], result['type'], result['client'], result['user']))
 
 	(count,) = res.fetchone()
-	logfile = os.path.join(settings.Config.ResponderPATH, 'logs', fname)
+	logfile = os.path.join(settings.Config.LogDir, fname)
 
 	if not count:
 		with open(logfile,"a") as outf:
@@ -433,7 +433,7 @@ def Parse_IPV6_Addr(data):
 
 
 def IsIPv6(data):
-	return "::ffff:" in data:
+	return "::ffff:" in data
     
 
 def Decode_Name(nbname):  #From http://code.google.com/p/dpkt/ with author's permission.
