@@ -96,9 +96,9 @@ Responder is an LLMNR, NBT-NS and MDNS poisoner.
 
 - ICMP Redirect
 
-```
-python tools/Icmp-Redirect.py
-```
+  ```
+  python tools/Icmp-Redirect.py
+  ```
 
   For MITM on Windows XP/2003 and earlier Domain members. This
   attack combined with the DNS module is pretty effective.
