@@ -14,25 +14,24 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 from socket import *
+
 
 print('MSSQL Server Finder 0.3')
 
-s = socket(AF_INET,SOCK_DGRAM)
+s = socket(AF_INET, SOCK_DGRAM)
 s.setsockopt(SOL_SOCKET, SO_BROADCAST, 1)
 s.settimeout(5)
-s.sendto(b'\x02',('255.255.255.255',1434))
+s.sendto(b'\x02', ('255.255.255.255', 1434))
 
-try:
-    while 1:
-        data, address = s.recvfrom(8092)
-        if not data:
-            break
-        else:
-            print("===============================================================")
-            print(("Host details: %s"%(address[0])))
-            print((data[2:]).decode('latin-1'))
-            print("===============================================================")
-            print("")
-except:
-    pass
+while 1:
+    data, address = s.recvfrom(8092)
+    if not data:
+        break
+
+    print("===============================================================")
+    print("Host details: {}".format(address[0]))
+    print(data[2:].decode('latin-1'))
+    print("===============================================================")
+    print("")
