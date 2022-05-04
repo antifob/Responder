@@ -25,11 +25,9 @@ import datetime
 import codecs
 import struct
 import random
-try:
-	import netifaces
-except:
-	sys.exit('You need to install python-netifaces or run Responder with python3...\nTry "apt-get install python-netifaces" or "pip install netifaces"')
-	
+import netifaces
+import sqlite3
+
 from calendar import timegm
 
 def if_nametoindex2(name):
@@ -75,12 +73,6 @@ def SMBTime():
        return struct.pack("<Q",116444736000000000 + (timegm(dt.timetuple()) * 10000000)).decode('latin-1')
     else:
        return struct.pack("<Q",116444736000000000 + (timegm(dt.timetuple()) * 10000000))
-
-try:
-	import sqlite3
-except:
-	print("[!] Please install python-sqlite3 extension.")
-	sys.exit(0)
 
 def color(txt, code = 1, modifier = 0):
 	if txt.startswith('[*]'):
