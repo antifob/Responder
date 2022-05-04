@@ -105,9 +105,9 @@ Responder is an LLMNR, NBT-NS and MDNS poisoner.
 
 - Rogue DHCP
 
-```
-python tools/DHCP.py
-```
+  ```
+  python tools/DHCP.py
+  ```
 
   DHCP Inform Spoofing. Allows you to let the real DHCP Server issue IP
   addresses, and then send a DHCP Inform answer to set your IP address as
